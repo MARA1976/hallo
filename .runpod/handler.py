@@ -1,36 +1,45 @@
 import os
-import runpod  # Required by RunPod
+import runpod
 import requests
 import uuid
 import yaml
 from argparse import Namespace
+from runpod.serverless.utils.rp_validator import validate
 from scripts.inference import inference_process
 
+# Define input schema
+schema = {
+    "image_url": {"type": str, "required": True},
+    "audio_url": {"type": str, "required": True},
+    "pose_weight": {"type": float, "required": False},
+    "face_weight": {"type": float, "required": False},
+    "lip_weight": {"type": float, "required": False},
+    "face_expand_ratio": {"type": float, "required": False},
+    "use_lora": {"type": bool, "required": False}
+}
 
 def download_file(url, dest_folder):
-    """
-    Download a file from a URL and save it locally.
-    """
     os.makedirs(dest_folder, exist_ok=True)
     local_path = os.path.join(dest_folder, f"{uuid.uuid4()}")
     with open(local_path, 'wb') as file:
         file.write(requests.get(url).content)
     return local_path
 
-
 def handler(event):
-    """
-    Main handler function for RunPod.
-    Downloads input files, prepares config, runs inference, and returns output path.
-    """
-    input_data = event["input"]
+    validated = validate(event["input"], schema)
+    if "errors" in validated:
+        return {"error": validated["errors"]}
+
+    input_data = validated["validated_input"]
 
     # Step 1: Download input files
     image_path = download_file(input_data["image_url"], ".cache/input")
     audio_path = download_file(input_data["audio_url"], ".cache/input")
 
     # Step 2: Prepare configuration
-    config_path = ".cache/config.yaml"
+    job_id = str(uuid.uuid4())
+    config_path = f".cache/configs/{job_id}.yaml"
+    os.makedirs(".cache/configs", exist_ok=True)
     config_data = {
         "source_image": image_path,
         "driving_audio": audio_path,
@@ -45,22 +54,15 @@ def handler(event):
         "config": "configs/inference/default.yaml"
     }
 
-    # Step 3: LoRA extension (future-ready, inactive for now)
     if input_data.get("use_lora"):
         config_data["lora_path"] = "/workspace/lora/my_character_lora.safetensors"
-        # You will add LoRA loading logic here in the future
 
-    # Step 4: Save config file
     with open(config_path, "w", encoding="utf-8") as file:
         yaml.dump(config_data, file)
 
-    # Step 5: Run inference
     args = Namespace(**config_data)
     output_path = inference_process(args)
 
-    # Step 6: Return result
-    return {"output_path": output_path}
+    return {"output": output_path}
 
-
-# Required by RunPod
 runpod.serverless.start({"handler": handler})
