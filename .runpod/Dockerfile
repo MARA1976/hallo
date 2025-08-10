@@ -1,26 +1,45 @@
-# Utilise une image officielle avec support CUDA
-FROM nvidia/cuda:12.2.0-base-ubuntu22.04
+# Base image with CUDA and Python
+FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
 
-# Installe Python et les dépendances système
+# Set working directory
+WORKDIR /workspace
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    python3.10 \
-    python3-pip \
-    git \
     ffmpeg \
-    libsm6 \
-    libxext6 \
+    git \
+    curl \
+    libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Crée un dossier de travail
-WORKDIR /app
+# Install Miniconda
+RUN curl -o ~/miniconda.sh -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    bash ~/miniconda.sh -b -p /opt/conda && \
+    rm ~/miniconda.sh
+ENV PATH=/opt/conda/bin:$PATH
 
-# Copie les fichiers du projet
-COPY . /app
+# Create and activate conda environment
+RUN conda create -n hallo python=3.10 -y
+SHELL ["conda", "run", "-n", "hallo", "/bin/bash", "-c"]
 
-# Installe les dépendances Python
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt \
-    && pip install .
+# Copy project files
+COPY . /workspace
 
-# Définit le point d’entrée pour RunPod Serverless
-CMD ["python3", "handler.py"]
+# Install Python dependencies
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install .
+
+# Download pretrained models (optional: clone manually if needed)
+# RUN git lfs install && \
+#     git clone https://huggingface.co/fudan-generative-ai/hallo pretrained_models
+
+# Optional: copy LoRA weights for future use
+# COPY lora/my_character_lora.safetensors /workspace/lora/
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV HF_HOME=/workspace/.cache/huggingface
+
+# RunPod entry point
+CMD ["conda", "run", "--no-capture-output", "-n", "hallo", "python", "handler.py"]

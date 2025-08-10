@@ -1,80 +1,54 @@
 {
-  "title": "Your Tool's Name",
-  "description": "A brief explanation of what your tool does",
+  "title": "Hallo - Talking Portrait Generator",
+  "description": "Generates animated videos from a face image and English speech audio using the Hallo model.",
   "type": "serverless",
-  "category": "language",
-  "iconUrl": "https://your-icon-url.com/icon.png",
-
+  "category": "video",
+  "iconUrl": "https://raw.githubusercontent.com/MARA1976/hallo/main/assets/hallo-icon.png",
   "config": {
     "runsOn": "GPU",
     "containerDiskInGb": 20,
-
     "gpuCount": 1,
-    "gpuIds": "RTX A4000,-NVIDIA RTX 4090",
+    "gpuIds": "RTX A4000,NVIDIA RTX 4090",
     "allowedCudaVersions": [
       "12.8", "12.7", "12.6", "12.5", "12.4",
       "12.3", "12.2", "12.1", "12.0"
     ],
-
-    "presets": [
-      {
-        "name": "Preset Name",
-        "defaults": {
-          "STRING_ENV_VAR": "value1",
-          "INT_ENV_VAR": 10,
-          "BOOL_ENV_VAR": true
-        }
-      }
-    ],
-
     "env": [
       {
-        "key": "STATIC_ENV_VAR",
-        "value": "static_value"
+        "key": "MODEL_NAME",
+        "value": "Hallo"
       },
       {
-        "key": "STRING_ENV_VAR",
+        "key": "POSE_WEIGHT",
         "input": {
-          "name": "User-friendly Name",
-          "type": "string",
-          "description": "Description of this input",
-          "default": "default value",
-          "advanced": false
-        }
-      },
-      {
-        "key": "OPTION_ENV_VAR",
-        "input": {
-          "name": "Select Option",
-          "type": "string",
-          "description": "Choose from available options",
-          "options": [
-            {"label": "Option 1", "value": "value1"},
-            {"label": "Option 2", "value": "value2"}
-          ],
-          "default": "value1"
-        }
-      },
-      {
-        "key": "INT_ENV_VAR",
-        "input": {
-          "name": "Numeric Value",
+          "name": "Pose Weight",
           "type": "number",
-          "description": "Enter a number",
-          "min": 1,
-          "max": 100,
-          "default": 50
+          "description": "Controls body movement intensity",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0
         }
       },
       {
-        "key": "BOOL_ENV_VAR",
+        "key": "FACE_WEIGHT",
         "input": {
-          "type": "boolean",
-          "name": "Enable Feature",
-          "description": "Toggle this feature on/off",
-          "default": false,
-          "trueValue": "enabled",
-          "falseValue": "disabled"
+          "name": "Face Weight",
+          "type": "number",
+          "description": "Controls facial fidelity",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0
+        }
+      },
+      {
+        "key": "LIP_WEIGHT",
+        "input": {
+          "name": "Lip Weight",
+          "type": "number",
+          "description": "Controls lip-sync accuracy",
+          "default": 0.5,
+          "min": 0.0,
+          "max": 1.0
         }
       }
     ]
