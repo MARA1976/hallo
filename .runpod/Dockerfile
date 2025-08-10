@@ -10,6 +10,14 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     libgl1 \
+    fontconfig \
+    libxrender1 \
+    libpulse0 \
+    libgbm1 \
+    libdrm-radeon1 \
+    libdrm-nouveau2 \
+    libpango-1.0-0 \
+    openssh-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Miniconda
@@ -18,8 +26,13 @@ RUN curl -o ~/miniconda.sh -O https://repo.anaconda.com/miniconda/Miniconda3-lat
     rm ~/miniconda.sh
 ENV PATH=/opt/conda/bin:$PATH
 
-# Create and activate conda environment
-RUN conda create -n hallo python=3.10 -y
+# Accept Conda Terms of Service and create environment
+RUN conda config --set channel_priority strict && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r && \
+    conda create -n hallo python=3.10 -y
+
+# Activate Conda environment for subsequent commands
 SHELL ["conda", "run", "-n", "hallo", "/bin/bash", "-c"]
 
 # Copy project files
@@ -30,11 +43,11 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt && \
     pip install .
 
-# Download pretrained models (optional: clone manually if needed)
+# Optional: download pretrained models
 # RUN git lfs install && \
 #     git clone https://huggingface.co/fudan-generative-ai/hallo pretrained_models
 
-# Optional: copy LoRA weights for future use
+# Optional: copy LoRA weights
 # COPY lora/my_character_lora.safetensors /workspace/lora/
 
 # Set environment variables
