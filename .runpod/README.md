@@ -1,12 +1,10 @@
-# hallo
+# hallo — RunPod-Ready AI Container
 
-Ce projet utilise RunPod Serverless pour transformer du texte en image ou en animation cartoon.
-
-## 🚀 Lancer sur RunPod
+A lightweight, GPU-enabled Docker image for running AI models on [RunPod](https://www.runpod.io) or locally.
 
 [![Runpod](https://api.runpod.io/badge/MARA1976/hallo)](https://console.runpod.io/hub/MARA1976/hallo)
 
-## 📦 Installation
+## Installation
 
 ```bash
 git clone git@github.com:MARA1976/hallo.git
