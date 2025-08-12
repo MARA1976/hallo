@@ -48,6 +48,9 @@ RUN conda update -n base -c defaults conda && \
 ENV CONDA_ENV_NAME=multimedia_env
 RUN conda create -n ${CONDA_ENV_NAME} python=3.10 pip -y
 
+#Install PyTorch
+RUN conda run -n multimedia_env pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --extra-index-url https://download.pytorch.org/whl/cu122
+
 # Install Python dependencies from requirements.txt
 COPY requirements.txt .
 RUN conda run -n ${CONDA_ENV_NAME} pip install --no-cache-dir -r requirements.txt
