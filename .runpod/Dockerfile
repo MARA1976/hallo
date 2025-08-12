@@ -63,4 +63,4 @@ SHELL ["/bin/sh", "-c"]
 EXPOSE 8888
 
 # Run the main script with the activated Conda environment
-CMD ["/bin/bash", "-c", "source /opt/conda/etc/profile.d/conda.sh && conda activate multimedia_env && python handler.py"]
+CMD ["conda", "run", "-n", "multimedia_env", "python", "handler.py"]
