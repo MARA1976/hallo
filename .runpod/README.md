@@ -10,3 +10,5 @@ A lightweight, GPU-enabled Docker image for running AI models on [RunPod](https:
 git clone git@github.com:MARA1976/hallo.git
 cd hallo
 pip install -r requirements.txt
+## Licence
+This deployment setup is based on the original Hallo project. See the main repository for licensing details.
